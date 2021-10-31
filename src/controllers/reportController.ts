@@ -23,8 +23,9 @@ export const getReport = async (req: Request, res: Response) => {
         JOIN visit ON visit.caregiver = caregiver.id
         JOIN patient ON patient.id = visit.patient		
         where EXTRACT(YEAR FROM visit.date)=${year}
-        Group by caregiver_id ,caregiver_name`;
+        Group by caregiver_id ,caregiver_name`; 
 
+        
     let result: QueryResult;
     try {
         result = await dbUtil.sqlToDB(sql, []);
