@@ -1,0 +1,50 @@
+import {PoolClient, QueryResult} from 'pg';
+import * as dbUtil from './../utils/dbUtil';
+import logger = require('./../utils/logger');
+const transactionSuccess : string = 'transaction success';
+
+/* 
+ * sample query
+ * @return server time
+ */
+export const getTimeModel = async () => {
+    let sql = "SELECT NOW();";
+    let data : string[] = [];
+    let result : QueryResult;
+    try {
+        result = await dbUtil.sqlToDB(sql, data);
+        return result;
+    } catch (error) {
+        if (error instanceof Error) {
+        throw new Error((error as Error).message);
+        }
+
+        return undefined;
+    }
+}
+
+/* 
+ * sample query using transactions
+ * @return transaction success
+ */
+export const sampleTransactionModel = async () => {
+    let singleSql = "DELETE FROM TEST";
+    let multiSql = "INSERT INTO TEST (testcolumn) VALUES ($1)";
+    let singleData : string[][] = [];
+    let multiData : string[][] = [['typescript'], ['is'], ['fun']];
+    let client: PoolClient = await dbUtil.getTransaction();
+    try {
+        await dbUtil.sqlExecSingleRow(client, singleSql, singleData);
+        await dbUtil.sqlExecMultipleRows(client, multiSql, multiData);
+        await dbUtil.commit(client);
+        return transactionSuccess;
+    } catch (error) {
+        await dbUtil.rollback(client);
+        if (error instanceof Error) {
+        logger.error(`sampleTransactionModel error: ${(error as Error).message}`);
+        throw new Error((error as Error).message);
+        }
+
+        return undefined;
+    }
+}
