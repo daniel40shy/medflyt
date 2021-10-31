@@ -10,8 +10,6 @@ interface Report {
     }[]
 }
 
-
-
 export const getReport = async (req: Request, res: Response) => {
     var year=req.url.substring(req.url.lastIndexOf('/') + 1);
     const sql = `
